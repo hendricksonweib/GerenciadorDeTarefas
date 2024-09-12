@@ -25,16 +25,17 @@ async function listarMetas() {
     const response = await checkbox({
         message: "Use as setas para mudar de meta, o espaço para marcar ou desmarcar e o Enter para finalizar essa etapa",
         choices: [...metas],
-        instructions:false,
+        instructions: false,
     })
+
+    metas.forEach((m) => {
+        m.checked = false
+    })
+
     if (response.length == 0) {
         console.log("Nenhuma meta selecionada!")
         return
     }
-
-    metas.forEach((m)=>{
-        m.checked = false
-    })
 
     response.forEach((response) => {
         const meta = metas.find((m) => {
@@ -46,6 +47,23 @@ async function listarMetas() {
 
     console.log("meta(s) marcadas conluída(s)!")
 }
+
+async function metasRealizadas() {
+    const realizadas = metas.filter((meta) => {
+        return meta.checked
+    })
+
+    if (realizadas.length == 0) {
+        console.log("Não exitem metas realizadas")
+        return
+    }
+
+    await select({
+        message: "Metas realizadas",
+        choices: [...realizadas]
+    })
+}
+
 
 async function start() {
     console.log("Bem vindo ao App de tarefas")
@@ -64,6 +82,10 @@ async function start() {
                     value: "listar"
                 },
                 {
+                    name: "Metas Realizadas",
+                    value: "Realizadas"
+                },
+                {
 
                     name: "Sair",
                     value: "sair"
@@ -79,7 +101,9 @@ async function start() {
                 break
             case "listar":
                 await listarMetas()
-                console.log("listar tarefa")
+                break
+            case "Realizadas":
+                await metasRealizadas()
                 break
             case "Tarefas abertas":
                 console.log("tarefas em aberto")
