@@ -46,6 +46,7 @@ async function listarMetas() {
     })
 
     console.log("meta(s) marcadas conluída(s)!")
+
 }
 
 async function metasRealizadas() {
@@ -59,9 +60,49 @@ async function metasRealizadas() {
     }
 
     await select({
-        message: "Metas realizadas",
+        message: "Metas realizadas " + realizadas.length,
         choices: [...realizadas]
     })
+}
+
+async function metasAbertas() {
+    const abertas = metas.filter((meta) => {
+        return meta.checked != true
+    })
+
+    if (abertas.length == 0) {
+        console.log("Não exitem metas abertas")
+        return
+    }
+
+    await select({
+        message: "Metas abertas " + metas.length,
+        choices: [...abertas]
+    })
+}
+
+async function metasDeletadas() {
+    const metasDesmarcadas = metas.map((meta) => {
+        return { value: meta.value, checked: false }
+    })
+
+    const itensADeletar = await checkbox({
+        message: "Selecione item para deletar",
+        choices: [...metasDesmarcadas],
+        instructions: false,
+    })
+
+    if (itensADeletar.length == 0) {
+        console.log("nenhum item para deletar!")
+        return
+    }
+
+    itensADeletar.forEach((item) => {
+        metas = metas.filter((meta) => {
+            return meta.value != item
+        })
+    })
+    console.log("Meta(s) deletada(s) com sucesso!")
 }
 
 
@@ -86,7 +127,14 @@ async function start() {
                     value: "Realizadas"
                 },
                 {
-
+                    name: "Metas Abertas",
+                    value: "Abertas"
+                },
+                {
+                    name: "Deletar Metas",
+                    value: "Deletar"
+                },
+                {
                     name: "Sair",
                     value: "sair"
                 }
@@ -97,7 +145,7 @@ async function start() {
         switch (opcao) {
             case "cadastrar":
                 await cadastrarMeta()
-                console.log(metas)
+                // console.log(metas)
                 break
             case "listar":
                 await listarMetas()
@@ -105,8 +153,11 @@ async function start() {
             case "Realizadas":
                 await metasRealizadas()
                 break
-            case "Tarefas abertas":
-                console.log("tarefas em aberto")
+            case "Abertas":
+                await metasAbertas()
+                break
+            case "Deletar":
+                await metasDeletadas()
                 break
             case "sair":
                 console.log("até a próxima")
