@@ -1,11 +1,25 @@
 const { select, input, checkbox } = require('@inquirer/prompts')
-
+const fs = require("fs").promises
 let mensagem = ""
 let meta = {
     value: "Tomar 3L de água por dia",
     checked: false,
 }
 let metas = [meta]
+
+async function carregarMetas() {
+    try {
+        const dados = await fs.readFile("metas.json", "utf-8")
+        metas = JSON.parse(dados)
+    }
+    catch (error) {
+
+    }
+}
+
+async function salvarMetas() {
+    await fs.writeFile("metas.json", JSON.stringify(metas, null, 2))
+}
 
 const cadastrarMeta = async () => {
     const meta = await input({ message: "Digite a meta:" })
@@ -19,7 +33,6 @@ const cadastrarMeta = async () => {
     metas.push(
         { value: meta, checked: false }
     )
-
 }
 
 async function listarMetas() {
@@ -117,11 +130,11 @@ function mostrarMensagem() {
 }
 
 async function start() {
-    console.log("Bem vindo ao App de tarefas")
+    await carregarMetas()
 
     while (true) {
         mostrarMensagem()
-
+        await salvarMetas()
         const opcao = await select({
             message: "Menu >",
             choices: [
